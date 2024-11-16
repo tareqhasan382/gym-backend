@@ -46,7 +46,7 @@ const loginUser = async (
   };
 };
 const getAllUsers = async (): Promise<IUser[] | null> => {
-  const user = await UserModel.find();
+  const user = await UserModel.find({ role: { $ne: "ADMIN" } });
   return user;
 };
 const singleUser = async (id: string): Promise<IUser | null> => {

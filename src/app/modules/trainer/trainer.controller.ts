@@ -9,17 +9,7 @@ import { IClass } from "../class/class.interface";
 
 const createTrainer = catchAsync(async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
     const data = req.body;
-    //  console.log("data:", data);
-    // if (!id) {
-    //   return sendResponse(res, {
-    //     statusCode: StatusCodes.NOT_FOUND,
-    //     success: false,
-    //     message: "User ID is required",
-    //     data: null,
-    //   });
-    // }
 
     const result = await UserModel.findByIdAndUpdate(
       data?.id,
@@ -73,8 +63,36 @@ const trainerSchedule = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const allTrainer = catchAsync(async (req: Request, res: Response) => {
+  try {
+    const result = await UserModel.find({ role: "TRAINER" });
 
+    if (!result) {
+      return sendResponse(res, {
+        statusCode: StatusCodes.NOT_FOUND,
+        success: false,
+        message: "TRAINER not found",
+        data: null,
+      });
+    }
+
+    sendResponse<IUser[]>(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Trainer retrive successfully..!!",
+      data: result,
+    });
+  } catch (error) {
+    sendResponse(res, {
+      statusCode: StatusCodes.BAD_REQUEST,
+      success: false,
+      message: "Trainer retrive failed..!!",
+      data: error instanceof Error ? error.message : error,
+    });
+  }
+});
 export const trainerControoler = {
   createTrainer,
   trainerSchedule,
+  allTrainer,
 };

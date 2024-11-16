@@ -10,7 +10,11 @@ router.post(
   authVerify(USER_Role.ADMIN),
   classControoler.createClass
 );
-router.post("/:id", authVerify(USER_Role.TRAINEE), classControoler.bookClass);
+router.post(
+  "/book-class",
+  authVerify(USER_Role.TRAINER),
+  classControoler.bookClass
+);
 router.get("/", classControoler.allClass);
 // /class/{class_id}/book
 

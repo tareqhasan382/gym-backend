@@ -2,31 +2,47 @@ import { Request, Response } from "express";
 import catchAsync from "../../../shared/catchAsync";
 import { ClassModel } from "./class.model";
 import { sendResponse } from "../../../shared/sendResponse";
-import { IClass } from "./class.interface";
+import { DaysOfWeek, IClass } from "./class.interface";
 import { StatusCodes } from "http-status-codes";
-import { ExtractDate } from "../../../utils/ExtractDate";
-
 const createClass = catchAsync(async (req: Request, res: Response) => {
   try {
     const data = req.body;
-    const classDate = ExtractDate(data.date_time);
-    // console.log("classDate:", classDate);
-    // Count how many classes are scheduled for this day
-    const existingClasses = await ClassModel.countDocuments({
-      date_time: {
-        $gte: new Date(`${classDate}T00:00:00Z`),
-        $lt: new Date(`${classDate}T23:59:59Z`),
-      },
-    });
-    // console.log("existingClasses:", existingClasses);
-    if (existingClasses >= 5) {
-      return sendResponse(res, {
-        statusCode: StatusCodes.BAD_REQUEST,
+
+    const existingSchedules = await ClassModel.find({ days: data.days });
+    if (existingSchedules.length >= 5) {
+      return sendResponse<IClass>(res, {
+        statusCode: 400,
         success: false,
-        message: `Cannot schedule more than 5 classes on ${classDate}.`,
+        message: "Maximum of 5 class schedules allowed..!!",
       });
     }
+    // Validate 2-hour duration
+    const start = new Date(`1970-01-01T${data.startTime}:00Z`);
+    const end = new Date(`1970-01-01T${data.endTime}:00Z`);
+    const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+
+    if (duration !== 2) {
+      return sendResponse<IClass>(res, {
+        statusCode: 400,
+        success: false,
+        message: "Each class schedule must last 2 hours..!!",
+      });
+    }
+    // Validate overlappingSchedule
+    const overlappingSchedule = await ClassModel.findOne({
+      days: data.days,
+      startTime: data.startTime,
+    });
+    if (overlappingSchedule) {
+      return sendResponse<IClass>(res, {
+        statusCode: 400,
+        success: false,
+        message: "Schedule already exists for this time on this day..!!",
+      });
+    }
+
     const result = await ClassModel.create(data);
+
     sendResponse<IClass>(res, {
       statusCode: StatusCodes.OK,
       success: true,
@@ -72,9 +88,9 @@ const bookClass = catchAsync(async (req: Request, res: Response) => {
       });
     }
 
-    const { id } = req.params;
+    const { id, traineeId } = req.body; //
 
-    const classToBook = await ClassModel.findById(id); //.populate("trainees");
+    const classToBook = await ClassModel.findById(id); //.populate("trainee s");
 
     if (!classToBook) {
       return sendResponse(res, {
@@ -96,7 +112,7 @@ const bookClass = catchAsync(async (req: Request, res: Response) => {
     // Avoid duplicate booking
     // (classToBook.trainees.some((trainee) => console.log("trainee:", trainee)),
     if (
-      classToBook.trainees.some((trainee) => trainee.toString() === user.userId)
+      classToBook.trainees.some((trainee) => trainee.toString() === traineeId)
     ) {
       return sendResponse(res, {
         statusCode: StatusCodes.CONFLICT,
@@ -108,7 +124,7 @@ const bookClass = catchAsync(async (req: Request, res: Response) => {
     // Add the user as a trainee
     const result = await ClassModel.findByIdAndUpdate(
       id,
-      { $push: { trainees: user.userId } },
+      { $push: { trainees: traineeId } },
       { new: true }
     );
 

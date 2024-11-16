@@ -12,5 +12,5 @@ router.get(
   authVerify(USER_Role.TRAINER),
   trainerControoler.trainerSchedule
 );
-
+router.get("/all", trainerControoler.allTrainer);
 export const TrainerRoutes = router;

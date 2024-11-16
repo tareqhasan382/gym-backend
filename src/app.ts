@@ -5,7 +5,7 @@ import notFound from "./app/middlewares/notFound";
 import router from "./app/routes";
 
 const corsOptions = {
-  origin: ["http://localhost:5173"],
+  origin: ["http://localhost:5173", "http://localhost:3000"],
   credentials: true,
   optionSuccessStatus: 200,
 };
