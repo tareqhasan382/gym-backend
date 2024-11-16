@@ -1,61 +1,93 @@
 # Gym Management System
 
-### This system facilitates the management of a gym, allowing Admins, Trainers, and Trainees to perform specific roles.
+## Overview
 
-1. Admin
-   Admins manage the gym's create classes and trainers.
-   user=admin@example.com
-   password=12345
-   Admin Sign-in: `/api/v1/login`(POST)
-   Create Class: `/api/v1/class/create`(POST)
-   create trainer : `api/v1/trainer`(POST)
-   retrive trainer : `api/v1/trainer/all`(GET)
+The Gym Management System facilitates the management of a gym by allowing different roles: **Admins**, **Trainers**, and **Trainees**. Each user role has specific privileges and responsibilities for managing gym activities, classes, and trainee participation.
 
-2. Trainer
-   user=trainer1@example.com
-   password=12345
+---
 
-   Trainers manage their assigned classes and the trainees enrolled in those classes.
-   Trainer Sign-in
-   Endpoint: `/api/v1/login`
+## Roles
 
-   Add Trainee to Class
-   Endpoint: `/api/v1/class/book-class` (POST)
-   Endpoint: `/api/v1/trainee/all` (GET)
-   Endpoint: `/api/v1/class` (GET)
+### 1. **Admin**
 
-3. Trainee
-   user=trainee3@example.com
-   password=12345
-   Trainees can sign up and sign in to manage their participation in classes and update own infromation.
-   `/api/v1/user/registration` (POST)
-   `/api/v1/user/login` (POST)
+Admins have full control over the system, including creating and managing classes and trainers.
 
-# Database
+- **Sign-in**  
+  Admin can sign in via the following API endpoint:  
+  **POST** `/api/v1/login`  
+  Example:
 
-`{
+  - **Email**: `admin@example.com`
+  - **Password**: `12345`
+
+- **Create Class**  
+  Admin can create new classes:  
+  **POST** `/api/v1/class/create`
+
+- **Create Trainer**  
+  Admin can create new trainers:  
+  **POST** `/api/v1/trainer`
+
+- **Retrieve All Trainers**  
+  Admin can view all trainers:  
+  **GET** `/api/v1/trainer/all`
+
+---
+
+### 2. **Trainer**
+
+Trainers manage the classes they are assigned to and enroll trainees.
+
+- **Sign-in**  
+  Trainer can sign in via the following API endpoint:  
+  **POST** `/api/v1/login`  
+  Example:
+
+  - **Email**: `trainer1@example.com`
+  - **Password**: `12345`
+
+- **Add Trainee to Class**  
+  Trainers can assign trainees to classes:  
+  **POST** `/api/v1/class/book-class`
+
+- **Retrieve All Trainees**  
+  Trainers can retrieve all available trainees:  
+  **GET** `/api/v1/trainee/all`
+
+- **View All Classes**  
+  Trainers can view all available classes:  
+  **GET** `/api/v1/class`
+
+---
+
+### 3. **Trainee**
+
+Trainees can sign up, sign in, and manage their participation in the classes they enroll in.
+
+- **Sign Up**  
+  Trainees can sign up using the following endpoint:  
+  **POST** `/api/v1/user/registration`
+
+- **Sign In**  
+  Trainees can sign in using the following endpoint:  
+  **POST** `/api/v1/user/login`  
+  Example:
+  - **Email**: `trainee3@example.com`
+  - **Password**: `12345`
+
+---
+
+## Database Models
+
+### 1. **User Model (Admin, Trainer, Trainee)**
+
+```json
+{
   "_id": "64fda128e4b0aef54d8c1a01",
   "fullName": "Admin User",
   "email": "admin@example.com",
-  "role": "ADMIN", // TRAINER , TRAINEE
+  "role": "ADMIN", // Possible roles: ADMIN, TRAINER, TRAINEE
   "createdAt": "2024-11-16T09:00:00.000Z",
   "updatedAt": "2024-11-16T09:00:00.000Z"
 }
-`
-
-`{
-  "_id": "64fda130e4b0aef54d8c1b01",
-  "name": "Yoga Class",
-  "days": "MONDAY",
-  "startTime": "09:00",
-  "endTime": "10:00",
-  "trainer": "64fda128e4b0aef54d8c1a02",  // ref to Users collection
-  "trainees": [
-    "64fda128e4b0aef54d8c1a03",  // ref to Users collection
-    "64fda128e4b0aef54d8c1a04"
-  ],
-  "max_capacity": 20,
-  "createdAt": "2024-11-16T09:00:00.000Z",
-  "updatedAt": "2024-11-16T09:00:00.000Z"
-}
-`
+```
